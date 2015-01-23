@@ -1,0 +1,21 @@
+# rename this file to config.yaml before start
+# qqbot帐号
+account:  2102172136
+password: "Icikpyh??"
+
+# 验证码图片
+port: 3100
+host: localhost
+
+
+# 消息处理，忽略20秒以外的离线消息
+offline_msg_keeptime: 20
+
+# 插件列表
+plugins:
+    - help
+    - core
+
+# apiserver 插件配置，已被QQ盯上所以没用
+api_port:  3000
+api_token: ''
