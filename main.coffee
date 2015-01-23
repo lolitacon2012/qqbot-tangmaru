@@ -1,6 +1,6 @@
 #!/usr/bin/env coffee
-current_group_name = "2015-SM2-19th全国学生群"
-#current_group_name = "机器人测试"
+#current_group_name = "2015-SM2-19th全国学生群"
+current_group_name = "机器人测试"
 log = new (require("log"))("debug")
 auth = require("./src/qqauth")
 api = require("./src/qqapi")
@@ -93,22 +93,22 @@ run = ->
         foods["全虾堡套餐"] = {price: 125, nice: 40, size: 30}
         foods["金坷垃"] = {price: 99999, nice: 99999, size: 1}
 
-        weapons["逻辑"] = {attack: 10, price: 0, once:false, bonus:false }
-        weapons["利刃"] = {attack: 30, price: 700, once:false, bonus:false }
-        weapons["砍刀"] = {attack: 40, price: 900, once:false, bonus:false }
-        weapons["木棒"] = {attack: 10, price: 200, once:false, bonus:false }
-        weapons["铁锤"] = {attack: 35, price: 820, once:false, bonus:false }
-        weapons["二踢脚"] = {attack: 1000, price: 3500, once:true, bonus:false }
-        weapons["AK47"] = {attack: 100, price: 2000, once:false, bonus:false }
-        weapons["MP5"] = {attack: 75, price: 1450, once:false, bonus:false }
-        weapons["AWP"] = {attack: 600, price: 10000, once:false, bonus:false }
-        weapons["M4A1"] = {attack: 150, price: 3350, once:false, bonus:false }
-        weapons["氢弹"] = {attack: 8000, price: 25000, once:true, bonus:false }
-        weapons["电磁炮"] = {attack: 1000, price: 25000, once:false, bonus:false }
+        weapons["逻辑"] = {attack: 10, price: 50, once:false, bonus:false }
+        weapons["利刃"] = {attack: 100, price: 500, once:false, bonus:false }
+        weapons["砍刀"] = {attack: 220, price: 1000, once:false, bonus:false }
+        weapons["木棒"] = {attack: 80, price: 400, once:false, bonus:false }
+        weapons["铁锤"] = {attack: 160, price: 750, once:false, bonus:false }
+        weapons["二踢脚"] = {attack: 550, price: 2500, once:true, bonus:false }
+        weapons["AK47"] = {attack: 320, price: 1500, once:false, bonus:false }
+        weapons["MP5"] = {attack: 265, price: 1250, once:false, bonus:false }
+        weapons["AWP"] = {attack: 880, price: 4000, once:false, bonus:false }
+        weapons["M4A1"] = {attack: 444, price: 2000, once:false, bonus:false }
+        weapons["氢弹"] = {attack: 6500, price: 25000, once:true, bonus:false }
+        weapons["电磁炮"] = {attack: 1400, price: 5000, once:false, bonus:false }
         weapons["野狗"] = {attack: 80, price: 3000, once:false, bonus:false }
         weapons["狼狗"] = {attack: 120, price: 9000, once:false, bonus:false }
 
-        adj = ["恐惧", "超能", "暗黑", "光明", "震撼", "罕见", "吸血", "国产", "破碎", "贪婪", "祭祀"]
+        adj = ["恐惧", "超能", "暗黑", "光明", "震撼", "护体", "吸血", "国产", "破碎", "贪婪", "治愈"]
 
         list_one = bot.groupmember_info[student_group.gid].minfo
         for suspect in list_one
@@ -139,7 +139,8 @@ run = ->
             members[winner_name].gold = members[winner_name].gold+1200
             members[winner_name_third].gold = members[winner_name_third].gold+600
             members[winner_name_second].gold = members[winner_name_second].gold+600
-            student_group.send "【彩票开奖】恭喜"+members[winner_name].nickname+"获得一等奖1500新币！！！\n"+"恭喜"+members[winner_name_second].nickname+"和"+members[winner_name_third].nickname+"获得二等奖600新币！"
+            student_group.send "【彩票开奖】\n\n恭喜"+members[winner_name].nickname+"获得一等奖1500新币！！！\n\n"+"恭喜"+members[winner_name_second].nickname+"和"+members[winner_name_third].nickname+"获得二等奖600新币！"
+            lottery = []
 
           if (last_command is content) and (last_commander is message.from_user.nick)
             not_same_again = false
@@ -161,15 +162,18 @@ run = ->
 
                 for suspect in list_one
                   if (members[suspect.nick].nickname is toNick) is true
-                    student_group.send toNick+"这个名字已经被占了"
+                    student_group.send toNick+"这个名字已经被占了，不能用"
                     can_use = false
                     break
                 if can_use is true
                   if ((toNick is "唐马儒") or (toNick is "肯打鸡")) is true
                     student_group.send "想作死请去打劫唐马儒，别自己改名叫唐马儒。"
                   else
-                    student_group.send "玩家"+message.from_user.nick+"更名为"+toNick
-                    members[message.from_user.nick].nickname = toNick
+                    if (toNick.length > 10)
+                      student_group.send "名字太长！"
+                    else
+                      student_group.send "玩家"+message.from_user.nick+"更名为"+toNick
+                      members[message.from_user.nick].nickname = toNick
                 
 
             if (content.indexOf("肯打鸡购买") is 0) is true
@@ -184,10 +188,10 @@ run = ->
                   student_group.send members[message.from_user.nick].nickname+"你个穷鬼也想买"+thingToBuy+"？你有"+foods[thingToBuy].price+"新币么？"
 
             if (content.indexOf("购买彩票") is 0) is true
-              if (members[message.from_user.nick].gold >= 100) is true
-                student_group.send members[message.from_user.nick].nickname+"购买彩票一张，消费100新币！祝您中奖！"
+              if (members[message.from_user.nick].gold >= 400) is true
+                student_group.send members[message.from_user.nick].nickname+"购买彩票一张，消费400新币！祝您中奖！"
                 members[message.from_user.nick].objects.push
-                members[message.from_user.nick].gold = members[message.from_user.nick].gold - 100
+                members[message.from_user.nick].gold = members[message.from_user.nick].gold - 400
                 lottery.push message.from_user.nick
               else
                 student_group.send members[message.from_user.nick].nickname+"，你没钱还敢来买彩票？"
@@ -243,7 +247,7 @@ run = ->
                   if (usedWeapon.indexOf("震撼")>=0)
                     self_damage = self_damage*1.5
                     rob_damage = rob_damage + actual_damage + actual_damage
-                  if (usedWeapon.indexOf("罕见")>=0)
+                  if (usedWeapon.indexOf("护体")>=0)
                     self_damage = self_damage*0.1
                   if (usedWeapon.indexOf("吸血")>=0)
                     get_life = actual_damage
@@ -253,9 +257,9 @@ run = ->
                     disappear = true
                   if (usedWeapon.indexOf("贪婪")>=0)
                     rob_gold = actual_damage + rob_damage
-                  if (usedWeapon.indexOf("祭祀")>=0)
+                  if (usedWeapon.indexOf("治愈")>=0)
                     rob_damage = 0-actual_damage
-                
+                  
                   actual_damage = actual_damage + rob_damage
                   if (members[actualPersonToRob].gold <= 0) is true
                     rob_gold = 0
@@ -296,6 +300,9 @@ run = ->
                     student_group.send "你没有"+food+"，请光临肯打鸡购买！"
                   else
                     student_group.send "这东西不能吃！"
+              else
+                if (me_full>90) is true
+                  student_group.send "我吃饱了！想上厕所！！！"
 
             if (content.indexOf("吃") is 0) is true
               toEat = content.indexOf("吃")
@@ -310,13 +317,12 @@ run = ->
                 else
                   student_group.send "这东西不能吃！"
 
-
             if (content.indexOf("出售") is 0) is true
               toThrow = content.indexOf("售")
               laji = content.substring(toThrow+1)
               if (laji in members[message.from_user.nick].objects) is true
-                student_group.send members[message.from_user.nick].nickname+"出售了"+laji+"，换回"+(members[message.from_user.nick].objects[laji].price*0.4)+"新币"
-                members[message.from_user.nick].gold = members[message.from_user.nick].gold+(members[message.from_user.nick].objects[laji].price*0.4)
+                student_group.send members[message.from_user.nick].nickname+"出售了"+laji+"，换回50新币"
+                members[message.from_user.nick].gold = members[message.from_user.nick].gold+50
                 members[message.from_user.nick].objects.splice(members[message.from_user.nick].objects.indexOf(laji), 1)
               else
                 if ((laji of foods) or (laji of weapons)) is true
@@ -355,7 +361,7 @@ run = ->
 
             if (message.from_user.nick is "江城") is true
               if fx_firstTime
-                student_group.send "函数！你好吖！我代学娘向你问好！祝你今天开心！😊"
+                student_group.send "函数！你好吖！我代学娘向你问好！祝你今天开心！"
               fx_firstTime = false
 
             if (message.from_user.nick is "我是一颗大石榴") is true
