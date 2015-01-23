@@ -1,6 +1,6 @@
 #!/usr/bin/env coffee
-#current_group_name = "2015-SM2-19th全国学生群"
-current_group_name = "机器人测试"
+current_group_name = "2015-SM2-19th全国学生群"
+#current_group_name = "机器人测试"
 log = new (require("log"))("debug")
 auth = require("./src/qqauth")
 api = require("./src/qqapi")
@@ -8,6 +8,7 @@ QQBot = require("./src/qqbot")
 defaults = require("./src/defaults")
 config = require("./config")
 KEY_COOKIES = "qq-cookies"
+weaponArray = []
 KEY_AUTH = "qq-auth"
 mouth_open = true
 stopped = false
@@ -18,6 +19,8 @@ yangming_firstTime = true
 actualPersonToRob = undefined
 laoban_firstTime = true
 king_firstTime = true
+moshanghuakai_firstTime = true
+shipucun_firstTime = true
 popularValue = 0
 popularPerson = undefined
 mostPopular = undefined
@@ -107,12 +110,26 @@ run = ->
         weapons["电磁炮"] = {attack: 1400, price: 5000, once:false, bonus:false }
         weapons["野狗"] = {attack: 80, price: 3000, once:false, bonus:false }
         weapons["狼狗"] = {attack: 120, price: 9000, once:false, bonus:false }
+        weaponArray.push "逻辑"
+        weaponArray.push "利刃"
+        weaponArray.push "砍刀"
+        weaponArray.push "木棒"
+        weaponArray.push "铁锤"
+        weaponArray.push "二踢脚"
+        weaponArray.push "AK47"
+        weaponArray.push "MP5"
+        weaponArray.push "AWP"
+        weaponArray.push "M4A1"
+        weaponArray.push "氢弹"
+        weaponArray.push "电磁炮"
+
 
         adj = ["恐惧", "超能", "暗黑", "光明", "震撼", "护体", "吸血", "国产", "破碎", "贪婪", "治愈"]
 
         list_one = bot.groupmember_info[student_group.gid].minfo
         for suspect in list_one
           members[suspect.nick] = { nickname: suspect.nick, nice: 0, objects: ["蛋挞","可乐", "面包","烤翅","逻辑"], gold: 3000, water: 0, life: 1500, firstseen:true}
+        members["十甫寸"] = { nickname: suspect.nick, nice: 0, objects: ["蛋挞","可乐", "面包","烤翅","逻辑","十甫寸专属的二踢脚"], gold: 5000, water: 0, life: 1500, firstseen:true}
 
         bot.request.get {url:"http://api.hitokoto.us/rand",json:true}, (e,r,data)->
           if data and data.hitokoto
@@ -190,11 +207,17 @@ run = ->
             if (content.indexOf("购买彩票") is 0) is true
               if (members[message.from_user.nick].gold >= 400) is true
                 student_group.send members[message.from_user.nick].nickname+"购买彩票一张，消费400新币！祝您中奖！"
-                members[message.from_user.nick].objects.push
+                
                 members[message.from_user.nick].gold = members[message.from_user.nick].gold - 400
                 lottery.push message.from_user.nick
               else
                 student_group.send members[message.from_user.nick].nickname+"，你没钱还敢来买彩票？"
+
+            if (content.indexOf("武器列表") is 0) is true
+              toSay = "[可购买之武器]\n"
+              for gun in weaponArray
+                toSay = toSay + "\n" + gun + weapons[gun].price + "新币　" + "攻击力="+weapons[gun].attack
+              student_group.send toSay
 
             if (content.indexOf("军火商购买") is 0) is true
               toBuy = content.indexOf("买")
@@ -205,7 +228,7 @@ run = ->
                   randomnumberone = Math.floor(Math.random() * (4 + 1) + 0)
                   randomnumbertwo = 5 + Math.floor(Math.random() * (5 + 1) + 0)
                   weaponResult = adj[randomnumberone]+"之"+adj[randomnumbertwo]+"的"+thingToBuy
-                  student_group.send members[message.from_user.nick].nickname+"购买到了"+weaponResult+"，消费"+weapons[thingToBuy].price+"新币！"
+                  student_group.send members[message.from_user.nick].nickname + "购买到了" + weaponResult + "，消费"+weapons[thingToBuy].price+"新币！"
                   members[message.from_user.nick].objects.push weaponResult
                   members[message.from_user.nick].gold = members[message.from_user.nick].gold - weapons[thingToBuy].price
                 else
@@ -258,7 +281,7 @@ run = ->
                   if (usedWeapon.indexOf("贪婪")>=0)
                     rob_gold = actual_damage + rob_damage
                   if (usedWeapon.indexOf("治愈")>=0)
-                    rob_damage = 0-actual_damage
+                    rob_damage = 0-actual_damage-actual_damage
                   
                   actual_damage = actual_damage + rob_damage
                   if (members[actualPersonToRob].gold <= 0) is true
@@ -274,7 +297,7 @@ run = ->
                   members[actualPersonToRob].life = members[actualPersonToRob].life - actual_damage
                   members[actualPersonToRob].gold = members[actualPersonToRob].gold - rob_gold
 
-                student_group.send members[message.from_user.nick].nickname+"使用"+usedWeapon+"袭击了"+personToRob+"，造成"+actual_damage+"伤害并抢夺了"+rob_gold+"新币！"+members[message.from_user.nick].nickname+"在战斗中自身受到"+self_damage+"伤害！"+dissappear_to_say
+                  student_group.send members[message.from_user.nick].nickname+"使用"+usedWeapon+"袭击了"+personToRob+"，造成"+actual_damage+"伤害并抢夺了"+rob_gold+"新币！"+members[message.from_user.nick].nickname+"在战斗中自身受到"+self_damage+"伤害！"+dissappear_to_say
                 if(members[actualPersonToRob].life <= 0)
                   student_group.send members[actualPersonToRob].nickname+"被"+members[message.from_user.nick].nickname+"残忍的杀害了！"
             if (content.indexOf("查看我的状态") is 0) is true
@@ -321,7 +344,7 @@ run = ->
               toThrow = content.indexOf("售")
               laji = content.substring(toThrow+1)
               if (laji in members[message.from_user.nick].objects) is true
-                student_group.send members[message.from_user.nick].nickname+"出售了"+laji+"，换回50新币"
+                student_group.send members[message.from_user.nick].nickname+"出售了"+laji+""
                 members[message.from_user.nick].gold = members[message.from_user.nick].gold+50
                 members[message.from_user.nick].objects.splice(members[message.from_user.nick].objects.indexOf(laji), 1)
               else
@@ -369,10 +392,20 @@ run = ->
                 student_group.send "石榴妹子你好吖~！祝你今天也萌萌哒~"
               shiliu_firstTime = false
 
+            if (message.from_user.nick is "陌上花开.") is true
+              if moshanghuakai_firstTime
+                student_group.send "陌上花开你好吖~！祝你今天战斗力爆表！"
+              moshanghuakai_firstTime = false
+
             if (message.from_user.nick is "柳落梨花雨") is true
               if chitanda_firstTime
                 student_group.send "吃蛋挞我要吃！了！你！吃了你！好萌！！！"
               chitanda_firstTime = false
+
+            if (message.from_user.nick is "十甫寸") is true
+              if shipucun_firstTime
+                student_group.send "人见人爱花见花开车见车爆胎的Monkey boy你好！你的声音依旧是那么低沉亲切性感！"
+              shipucun_firstTime = false
 
             if (message.from_user.nick is "Fantastic Me") is true
               if laoban_firstTime
