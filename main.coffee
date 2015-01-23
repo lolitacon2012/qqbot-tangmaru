@@ -34,6 +34,7 @@ foods = {}
 weapons = {}
 dougu = {}
 stomach = []
+lottery = []
 student_group = undefined
 kfcCustomers = undefined
 not_same_again = true
@@ -111,11 +112,11 @@ run = ->
 
         list_one = bot.groupmember_info[student_group.gid].minfo
         for suspect in list_one
-          members[suspect.nick] = { nickname: suspect.nick, nice: 0, objects: ["蛋挞","可乐", "面包","烤翅","逻辑"], gold: 10000000, water: 0, life: 1500, firstseen:true}
+          members[suspect.nick] = { nickname: suspect.nick, nice: 0, objects: ["蛋挞","可乐", "面包","烤翅","逻辑"], gold: 3000, water: 0, life: 1500, firstseen:true}
 
         bot.request.get {url:"http://api.hitokoto.us/rand",json:true}, (e,r,data)->
           if data and data.hitokoto
-            student_group.send "大家好啊，我是男神唐马儒，我能联系到美国肯打鸡和俄国军火商，同时我也是专业鉴黄师~\n\n今日名言警句：\n"+data.hitokoto + "\n--" + data.source
+            student_group.send "大家好啊，我是男神唐马儒，我能联系到美国肯打鸡、俄国军火商和中国体育彩票，同时我也是专业鉴黄师~\n\n今日名言警句：\n"+data.hitokoto + "\n--" + data.source
             return
           else
             student_group.send "大家好啊，我是男神唐马儒，我家经营肯打鸡，同时我也是专业鉴黄师~。。"
@@ -128,10 +129,24 @@ run = ->
             mouth_open = true
             student_group.send "这儿呢"
 
+          if (lottery.length>9)
+            lottery_winner = Math.floor(Math.random() * (9 + 1) + 0)
+            winner_name = lottery[lottery_winner]
+            lottery_winner_second = Math.floor(Math.random() * (8 + 1) + 0)
+            winner_name_second = lottery[lottery_winner_second]
+            lottery_winner_third = Math.floor(Math.random() * (7 + 1) + 0)
+            winner_name_third = lottery[lottery_winner_third]
+            members[winner_name].gold = members[winner_name].gold+1200
+            members[winner_name_third].gold = members[winner_name_third].gold+600
+            members[winner_name_second].gold = members[winner_name_second].gold+600
+            student_group.send "【彩票开奖】恭喜"+members[winner_name].nickname+"获得一等奖1500新币！！！\n"+"恭喜"+members[winner_name_second].nickname+"和"+members[winner_name_third].nickname+"获得二等奖600新币！"
+
           if (last_command is content) and (last_commander is message.from_user.nick)
             not_same_again = false
           else
             not_same_again = true
+            last_command = content
+            last_commander = message.from_user.nick
 
           if ((mouth_open) is true) and ((not_same_again) is true)
 
@@ -150,8 +165,11 @@ run = ->
                     can_use = false
                     break
                 if can_use is true
-                  student_group.send "玩家"+message.from_user.nick+"更名为"+toNick
-                  members[message.from_user.nick].nickname = toNick
+                  if ((toNick is "唐马儒") or (toNick is "肯打鸡")) is true
+                    student_group.send "想作死请去打劫唐马儒，别自己改名叫唐马儒。"
+                  else
+                    student_group.send "玩家"+message.from_user.nick+"更名为"+toNick
+                    members[message.from_user.nick].nickname = toNick
                 
 
             if (content.indexOf("肯打鸡购买") is 0) is true
@@ -164,6 +182,15 @@ run = ->
                   members[message.from_user.nick].gold = members[message.from_user.nick].gold - foods[thingToBuy].price
                 else
                   student_group.send members[message.from_user.nick].nickname+"你个穷鬼也想买"+thingToBuy+"？你有"+foods[thingToBuy].price+"新币么？"
+
+            if (content.indexOf("购买彩票") is 0) is true
+              if (members[message.from_user.nick].gold >= 100) is true
+                student_group.send members[message.from_user.nick].nickname+"购买彩票一张，消费100新币！祝您中奖！"
+                members[message.from_user.nick].objects.push
+                members[message.from_user.nick].gold = members[message.from_user.nick].gold - 100
+                lottery.push message.from_user.nick
+              else
+                student_group.send members[message.from_user.nick].nickname+"，你没钱还敢来买彩票？"
 
             if (content.indexOf("军火商购买") is 0) is true
               toBuy = content.indexOf("买")
@@ -230,7 +257,8 @@ run = ->
                     rob_damage = 0-actual_damage
                 
                   actual_damage = actual_damage + rob_damage
-
+                  if (members[actualPersonToRob].gold <= 0) is true
+                    rob_gold = 0
                   members[message.from_user.nick].life = members[message.from_user.nick].life - self_damage + get_life
                   members[message.from_user.nick].gold = members[message.from_user.nick].gold + rob_gold
                   dissappear_ran = Math.floor(Math.random() * (100 + 1) + 0)
@@ -243,7 +271,8 @@ run = ->
                   members[actualPersonToRob].gold = members[actualPersonToRob].gold - rob_gold
 
                 student_group.send members[message.from_user.nick].nickname+"使用"+usedWeapon+"袭击了"+personToRob+"，造成"+actual_damage+"伤害并抢夺了"+rob_gold+"新币！"+members[message.from_user.nick].nickname+"在战斗中自身受到"+self_damage+"伤害！"+dissappear_to_say
-                
+                if(members[actualPersonToRob].life <= 0)
+                  student_group.send members[actualPersonToRob].nickname+"被"+members[message.from_user.nick].nickname+"残忍的杀害了！"
             if (content.indexOf("查看我的状态") is 0) is true
               things_to_show = ""
               for itemz in members[message.from_user.nick].objects
@@ -282,11 +311,12 @@ run = ->
                   student_group.send "这东西不能吃！"
 
 
-            if (content.indexOf("扔掉") is 0) is true
-              toThrow = content.indexOf("掉")
+            if (content.indexOf("出售") is 0) is true
+              toThrow = content.indexOf("售")
               laji = content.substring(toThrow+1)
               if (laji in members[message.from_user.nick].objects) is true
-                student_group.send members[message.from_user.nick].nickname+"丢弃了"+laji+"。"
+                student_group.send members[message.from_user.nick].nickname+"出售了"+laji+"，换回"+(members[message.from_user.nick].objects[laji].price*0.4)+"新币"
+                members[message.from_user.nick].gold = members[message.from_user.nick].gold+(members[message.from_user.nick].objects[laji].price*0.4)
                 members[message.from_user.nick].objects.splice(members[message.from_user.nick].objects.indexOf(laji), 1)
               else
                 if ((laji of foods) or (laji of weapons)) is true
